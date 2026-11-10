@@ -15,6 +15,8 @@ Extensão para copiar o endereço de um link sem abrir a página. Funciona no Ch
 
 Também é possível carregar diretamente a pasta deste projeto pelo botão **Carregar sem compactação**.
 
+Para atualizar uma instalação existente, atualize os arquivos da pasta carregada, clique em **Recarregar** no cartão da extensão e atualize as abas abertas.
+
 ## Uso
 
 Mantenha a tecla modificadora pressionada e clique com o botão esquerdo em um link:

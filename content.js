@@ -1,22 +1,60 @@
-// Alt + clique esquerdo em um link copia a URL sem navegar.
+// Alt + clique esquerdo em um link copia a URL sem navegar ou baixá-la.
+let altPointerDownHandled = false;
+
+document.addEventListener("pointerdown", (event) => {
+  altPointerDownHandled = false;
+  if (!isAltLeftAction(event)) return;
+
+  const link = findLink(event);
+  if (!link) return;
+
+  altPointerDownHandled = true;
+  cancelEvent(event);
+  copyLink(link.href);
+}, true);
+
 document.addEventListener("click", (event) => {
-  if (!event.altKey || event.button !== 0 ||
-      event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (!isAltLeftAction(event)) return;
 
-  const element = event.target;
-  if (!(element instanceof Element)) return;
+  const link = findLink(event);
+  if (!link) return;
 
-  const link = element.closest("a[href]");
-  if (!(link instanceof HTMLAnchorElement)) return;
+  cancelEvent(event);
+  // O click é uma alternativa para ativação por teclado ou sem pointerdown.
+  if (event.detail === 0 || !altPointerDownHandled) {
+    copyLink(link.href);
+  }
+  altPointerDownHandled = false;
+}, true);
 
-  // Cancela a navegação e handlers de clique da própria página.
+function isAltLeftAction(event) {
+  return event.altKey && event.button === 0 &&
+    !event.ctrlKey && !event.metaKey && !event.shiftKey;
+}
+
+function findLink(event) {
+  for (const node of event.composedPath()) {
+    if (node instanceof HTMLAnchorElement && node.hasAttribute("href")) {
+      return node;
+    }
+  }
+
+  const target = event.target;
+  const element = target instanceof Element ? target : target?.parentElement;
+  const link = element?.closest("a[href]");
+  return link instanceof HTMLAnchorElement ? link : null;
+}
+
+function cancelEvent(event) {
   event.preventDefault();
   event.stopImmediatePropagation();
+}
 
-  copyText(link.href).then((ok) => {
+function copyLink(url) {
+  copyText(url).then((ok) => {
     showMessage(ok ? "Link copiado!" : "Não foi possível copiar o link.");
   });
-}, true);
+}
 
 async function copyText(text) {
   if (navigator.clipboard?.writeText) {
